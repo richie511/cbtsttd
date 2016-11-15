@@ -69,7 +69,8 @@
 			padding: 1rem;
 		}
 		#tabel_ujian {
-			font-size : 25px;
+			font-size : 19px;
+			font-family : arial;
 		}
 		#home {
 			text-align: center;
@@ -139,37 +140,29 @@
 			window.localStorage.setItem("limit", limit);
 			var limit = window.localStorage.getItem("limit");
 			var NIM = window.localStorage.getItem("NIM");
-			//alert(e);
-			//alert(limit);
-			//alert(NIM);
 			$.ajax({
 					type : "POST",
 					url  : "http://kasih.eu5.org/tabel_ujian1.php?",
 					data : "id_ujian="+e+"&limit="+limit+"&NIM="+NIM,
 					success : function(data){
 						$("#tabel_ujian").html(data);
-						//starttime(m,n);
+						starttime(m,n);
 					},
 					error : function(){
 						alert();
 					}
 				})
 		}
-		function soalnext(e) {
-			//$("#back1").show();
+		function soalnext(e,lm) {
 			$("#loginform").hide();
 			$("#home").html("<p><h1>SOAL</h1></p>");
 			window.localStorage.setItem("id_ujian", e);
 			var limit = window.localStorage.getItem("limit");
 			var NIM = window.localStorage.getItem("NIM");
-			var next = Number(limit) + 1;
-			//alert(e);
-			//alert(limit);
-			//alert(NIM);
 			$.ajax({
 					type : "POST",
 					url  : "http://kasih.eu5.org/tabel_ujian1.php?",
-					data : "id_ujian="+e+"&limit="+next+"&NIM="+NIM,
+					data : "id_ujian="+e+"&limit="+lm+"&NIM="+NIM,
 					success : function(data){
 						$("#tabel_ujian").html(data);
 					},
@@ -178,7 +171,7 @@
 					}
 				})
 		}
-		function soalprev(e) {
+		function soalprev(e,lm) {
 			//$("#back1").show();
 			$("#loginform").hide();
 			$("#home").html("<p><h1>SOAL</h1></p>");
@@ -192,7 +185,7 @@
 			$.ajax({
 					type : "POST",
 					url  : "http://kasih.eu5.org/tabel_ujian1.php?",
-					data : "id_ujian="+e+"&limit="+next+"&NIM="+NIM,
+					data : "id_ujian="+e+"&limit="+lm+"&NIM="+NIM,
 					success : function(data){
 						$("#tabel_ujian").html(data);
 					},
@@ -201,7 +194,7 @@
 					}
 				})
 		}
-		function simpan_jawaban(e) {
+		function simpan_jawaban(e,lm) {
 			var jawaban = $("#jawaban").val();
 			if (jawaban == ""){
 				$("#jawaban").focus();
@@ -219,10 +212,36 @@
 						url  : "http://kasih.eu5.org/simpan_jawaban.php?",
 						data : "id_soal="+e+"&id_ujian="+id_ujian+"&NIM="+NIM+"&jawaban="+jawaban,
 						success : function(data){
-							soalnext(id_ujian);
+							soalnext(id_ujian,lm);
 						},
 						error : function(){
 							alert();
+						}
+				})
+			}
+		}
+		function simpan_jawaban1(lm) {
+			var jawaban = $("#jawaban").val();
+			if (jawaban == ""){
+				$("#jawaban").focus();
+				return false;
+			}
+			else {
+				$("#back1").show();
+				$("#loginform").hide();
+				var id_ujian = window.localStorage.getItem("id_ujian");
+				var NIM = window.localStorage.getItem("NIM");
+				
+				//alert(NIM);
+				$.ajax({
+						type : "POST",
+						url  : "http://kasih.eu5.org/simpan_jawaban.php?",
+						data : "id_soal="+lm+"&id_ujian="+id_ujian+"&NIM="+NIM+"&jawaban="+jawaban,
+						success : function(data){
+							//soalnext(id_ujian,lm);
+						},
+						error : function(){
+							//alert();
 						}
 				})
 			}
@@ -233,6 +252,11 @@
 			var timerId = 0;
 			timerId =setInterval(function(){
 			var a = new Date();
+				if (min == 0){
+					hou--;
+					min = 60;
+					
+				}
 				min--;
 				document.getElementById("timer").innerHTML ="<p><h1>Waktu : "+ hou +" jam : " + min + " menit</h1></p>";
 				if(min == 00)
@@ -267,7 +291,7 @@
 			},1000);
 		
 		}
-		function selesai_ujian(e) {
+		function selesai_ujian(e,lm) {
 		//clearInterval(timerId);
 		$("#back1").show();
 		var pilih = confirm("Apakah Anda yakin menyelesaikan ujian ini ?");
@@ -281,6 +305,7 @@
 									data : "id_ujian="+e+"&NIM="+NIM,
 									success : function(data){
 										//$("#timer").remove();
+										simpan_jawaban1(lm);
 										$("#tabel_ujian").html("Ujian telah berakhir, sistem telah menyimpan semua jawaban.<br>Terimakasih.");
 									},
 									error : function(){
