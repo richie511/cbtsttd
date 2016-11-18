@@ -247,10 +247,13 @@
 			}
 		}
 		function starttime(jam,menit){
+			window.localStorage.setItem("statusTime", "mulai");
 			var statusTime = window.localStorage.getItem("statusTime");
-			if (statusTime=="selesai"){
+			//alert(statusTime);
+			if (statusTime=="mulai"){
 				var hou = jam;
 				var min = menit;
+				document.getElementById("timer").innerHTML ="<p><h1>Waktu : "+ hou +" jam : " + min + " menit</h1></p>";
 				//var timerId = 0;
 				var timerId =setInterval(function(){
 				var a = new Date();
@@ -267,7 +270,7 @@
 						min = 60;
 						if(hou  < 0)
 							{
-								window.localStorage.setItem("statusTime", "mulai");
+								window.localStorage.setItem("statusTime", "selesai");
 								document.getElementById("timer").innerHTML ="<p><h1>Waktu : "+ 0 +" jam : " + 0 + " menit</h1></p>";
 								var id_ujian = window.localStorage.getItem("id_ujian");
 								var NIM = window.localStorage.getItem("NIM");
@@ -294,15 +297,12 @@
 							}
 					}
 					
-				},60000);
-			}
-			else {
-				window.localStorage.setItem("statusTime", "selesai");
+				},1000);
 			}
 		}
 		function selesai_ujian(e,lm) {
 		//clearInterval(timerId);
-		window.localStorage.setItem("statusTime", "mulai");
+		window.localStorage.setItem("statusTime", "selesai");
 		$("#back1").show();
 		var pilih = confirm("Apakah Anda yakin menyelesaikan ujian ini ?");
 				if (pilih == true) {
