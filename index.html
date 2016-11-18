@@ -12,11 +12,13 @@
 			height: 100%;
 			box-sizing: border-box;
 		}
+
 		*,
 		*:before,
 		*:after {
 			box-sizing: inherit;
 		}
+
 		body {
 			position: relative;
 			margin: 0;
@@ -24,15 +26,18 @@
 			min-height: 100%;
 			font-family: "Helvetica Neue", Arial, sans-serif;
 		}
+
 		.konten {
 			margin: 0 auto;
 			padding-top: 64px;
 			max-width: 640px;
 			width: 94%;
 		}
+
 		.konten h1 {
 			margin-top: 0;
 		}
+
 		/**
 			* Footer Styles
 			*/
@@ -126,7 +131,7 @@
 				})
 		}
 		function soal(e,m,n) {
-			//$("#back1").show();
+			$("#back1").hide();
 			$("#timer").show();
 			$("#loginform").hide();
 			$("#home").html("<p><h1>SOAL</h1></p>");
@@ -242,52 +247,62 @@
 			}
 		}
 		function starttime(jam,menit){
-			var hou = jam;
-			var min = menit;
-			var timerId = 0;
-			timerId =setInterval(function(){
-			var a = new Date();
-				if (min == 0){
-					hou--;
-					min = 60;
+			var statusTime = window.localStorage.getItem("statusTime");
+			if (statusTime=="selesai"){
+				var hou = jam;
+				var min = menit;
+				//var timerId = 0;
+				var timerId =setInterval(function(){
+				var a = new Date();
+					if (min == 0){
+						hou--;
+						min = 60;
+						
+					}
+					min--;
+					document.getElementById("timer").innerHTML ="<p><h1>Waktu : "+ hou +" jam : " + min + " menit</h1></p>";
+					if(min == 00)
+					{
+						hou--;
+						min = 60;
+						if(hou  < 0)
+							{
+								window.localStorage.setItem("statusTime", "mulai");
+								document.getElementById("timer").innerHTML ="<p><h1>Waktu : "+ 0 +" jam : " + 0 + " menit</h1></p>";
+								var id_ujian = window.localStorage.getItem("id_ujian");
+								var NIM = window.localStorage.getItem("NIM");
+								clearInterval(timerId);
+								$("#back1").show();
+								$("#timer").hide();
+								$("#tabel_ujian").html("Ujian telah berakhir, sistem telah menyimpan semua jawaban.<br>Terimakasih.");
+								
+								$.ajax({
+										type : "POST",
+										url  : "http://192.168.137.1/kasih/simpan_logujian.php?",
+										data : "id_soal="+e+"&id_ujian="+id_ujian+"&NIM="+NIM+"&jawaban="+jawaban,
+										success : function(data){
+											$("#back1").show();
+											$("#timer").hide();
+											$("#tabel_ujian").html("Ujian telah berakhir, sistem telah menyimpan semua jawaban.<br>Terimakasih.");
+										},
+										error : function(){
+											alert();
+										}
+								})
+								
+								//
+							}
+					}
 					
-				}
-				min--;
-				document.getElementById("timer").innerHTML ="<p><h1>Waktu : "+ hou +" jam : " + min + " menit</h1></p>";
-				if(min == 00)
-				{
-					hou--;
-					min = 60;
-					if(hou  < 0)
-						{
-							clearInterval(timerId);
-							document.getElementById("timer").innerHTML ="<p><h1>Waktu : "+ 0 +" jam : " + 0 + " menit</h1></p>";
-							//AJAX
-							var id_ujian = window.localStorage.getItem("id_ujian");
-							var NIM = window.localStorage.getItem("NIM");
-							
-							//alert(NIM);
-							$.ajax({
-									type : "POST",
-									url  : "http://192.168.137.1/kasih/simpan_logujian.php?",
-									data : "id_soal="+e+"&id_ujian="+id_ujian+"&NIM="+NIM+"&jawaban="+jawaban,
-									success : function(data){
-										clearInterval(timerId);
-										$("#tabel_ujian").html("Ujian telah berakhir, sistem telah menyimpan semua jawaban.<br>Terimakasih.");
-									},
-									error : function(){
-										alert();
-									}
-							})
-							//
-						}
-				}
-				
-			},1000);
-		
+				},60000);
+			}
+			else {
+				window.localStorage.setItem("statusTime", "selesai");
+			}
 		}
 		function selesai_ujian(e,lm) {
 		//clearInterval(timerId);
+		window.localStorage.setItem("statusTime", "mulai");
 		$("#back1").show();
 		var pilih = confirm("Apakah Anda yakin menyelesaikan ujian ini ?");
 				if (pilih == true) {
@@ -300,6 +315,7 @@
 									data : "id_ujian="+e+"&NIM="+NIM,
 									success : function(data){
 										//$("#timer").remove();
+										$("#timer").hide();
 										simpan_jawaban1(lm);
 										$("#tabel_ujian").html("Ujian telah berakhir, sistem telah menyimpan semua jawaban.<br>Terimakasih.");
 									},
@@ -314,6 +330,7 @@
 		new WOW().init();
 		 
 		$body = $("body");
+
 		$(document).on({
 			ajaxStart: function() { $body.addClass("loading");    },
 			 ajaxStop: function() { $body.removeClass("loading"); }    
@@ -334,11 +351,13 @@
 						50% 50% 
 						no-repeat;
 		}
+
 		/* When the body has the loading class, we turn
 		   the scrollbar off with overflow:hidden */
 		body.loading {
 			overflow: hidden;   
 		}
+
 		/* Anytime the body has the loading class, our
 		   modal element will be visible */
 		body.loading .modal {
